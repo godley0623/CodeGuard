@@ -1,0 +1,11 @@
+.hidden {
+    display: none;
+}
+
+.email-form-container {
+    display: flex;
+}
+
+.email-form-text {
+    font-size: .75rem;
+}

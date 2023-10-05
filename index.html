@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeGuard</title>
     <script src="index.js" defer></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <main>
         <h1>CodeGuard</h1>
-        <div>
+        <div class="get-email">
+            <div class="email-form-container">
+                <input class="email-form-input" type="email" placeholder="Email Address">
+                <button class="email-form-button">Submit</button>
+            </div>
+            <p class="email-form-text">Enter Email Address for password recovery</p>
+        </div>
+        <div class="password-container hidden">
             <h4 class="current-website"></h4>
             <button class="copy-password">Copy Password</button>
             <button class="new-password">Generate New Password</button>
