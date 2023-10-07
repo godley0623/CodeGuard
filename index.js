@@ -1,5 +1,11 @@
+const serverUrl = 'https://code-guard-server.vercel.app/'
+
 let passwords = localStorage.getItem('cg: pws')
-if (!passwords) passwords = {}
+if (!passwords) {
+    passwords = {}
+} else {
+    passwords = JSON.parse(passwords)
+}
 
 let emailAddress = localStorage.getItem('cg: em')
 if (!emailAddress) emailAddress = ''
@@ -44,6 +50,48 @@ const handleEmailBtn = () => {
     window.location.reload()
 }
 
+const getNewPassword = async () => {
+    try{
+        const response = await fetch(`${serverUrl}generate`)
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.message
+    } catch(error) {
+        console.log(error)
+    }
+}
+let canGenerate = true
+const handleGenerateBtn = async (host) => {
+    if (!canGenerate) return
+    canGenerate = false
+    
+    if ( (host in passwords) === false ) {
+        const password = await getNewPassword()
+        passwords[host] = password
+        localStorage.setItem('cg: pws', JSON.stringify(passwords))
+        //TODO: send password to email address
+        alert(`A new password has been set for ${host}. Your password has been sent to ${emailAddress}`)
+    } else {
+        const response = window.confirm(`Are you sure you want to generate a new password for ${host}? (Your old one will be overwritten)`)
+
+        if (!response) { 
+            canGenerate = true
+            return
+        }
+
+        const password = await getNewPassword()
+        passwords[host] = password
+        localStorage.setItem('cg: pws', JSON.stringify(passwords))
+        //TODO: send password to email address
+        alert(`A new password has been set for ${host}. Your password has been sent to ${emailAddress}`)
+
+    }
+
+    canGenerate = true
+}
+
 const emailInput = document.querySelector('.email-form-input')
 const emailButton = document.querySelector('.email-form-button')
 
@@ -58,6 +106,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 
     const copyPassBtn = document.querySelector(".copy-password")
     copyPassBtn.addEventListener("click", () => copyPassword(activeHost))
+
+    const newPassBtn = document.querySelector(".new-password")
+    newPassBtn.addEventListener("click", () => handleGenerateBtn(activeHost))
 
     if (emailAddress) {
         const passContainer = document.querySelector('.password-container')
