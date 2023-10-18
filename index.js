@@ -50,6 +50,35 @@ const handleEmailBtn = () => {
     window.location.reload()
 }
 
+const sendEmail = async () => {
+    let passFormatted = ''
+    for (const [key, value] of Object.entries(passwords)) {
+        passFormatted = `${key}:  ${value}\n\n${passFormatted}`
+    }
+
+    console.log(passFormatted)
+
+    const body = {
+        email: emailAddress,
+        passwords: passFormatted
+    }
+    const requestDetails = {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    try{
+        const response = await fetch(`${serverUrl}email`, requestDetails)
+        console.log(response)
+        return true
+    } catch(error) {
+        console.error(error)
+        return false
+    }
+}
+
 const getNewPassword = async () => {
     try{
         const response = await fetch(`${serverUrl}generate`)
@@ -71,8 +100,11 @@ const handleGenerateBtn = async (host) => {
         const password = await getNewPassword()
         passwords[host] = password
         localStorage.setItem('cg: pws', JSON.stringify(passwords))
-        //TODO: send password to email address
-        alert(`A new password has been set for ${host}. Your password has been sent to ${emailAddress}`)
+        if (sendEmail()) {
+            alert(`A new password has been set for ${host}. Your password has been sent to ${emailAddress}`)
+        } else {
+            alert('An email error has occured')
+        }
     } else {
         const response = window.confirm(`Are you sure you want to generate a new password for ${host}? (Your old one will be overwritten)`)
 
@@ -84,9 +116,11 @@ const handleGenerateBtn = async (host) => {
         const password = await getNewPassword()
         passwords[host] = password
         localStorage.setItem('cg: pws', JSON.stringify(passwords))
-        //TODO: send password to email address
-        alert(`A new password has been set for ${host}. Your password has been sent to ${emailAddress}`)
-
+        if (sendEmail()) {
+            alert(`A new password has been set for ${host}. Your password has been sent to ${emailAddress}`)
+        } else {
+            alert('An email error has occured')
+        }
     }
 
     canGenerate = true
